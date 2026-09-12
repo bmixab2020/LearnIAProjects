@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculate Expense Sheet</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <main class="calculator">
+    <h1>Calculate Expense Sheet</h1>
+
+    <table class="sheet">
+      <thead>
+        <tr>
+          <th data-sort="index">#</th>
+          <th>Operation</th>
+          <th data-sort="amount">Amount</th>
+          <th data-sort="note">Notes</th>
+          <th data-sort="date">Date</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rowsBody"></tbody>
+    </table>
+
+    <div class="total-row">
+      <span>Total</span>
+      <strong id="display">0</strong>
+    </div>
+
+    <div class="actions">
+      <button id="addRowBtn">+ Add Row</button>
+      <button class="print-btn" id="printBtn">Print (PDF)</button>
+      <button class="clear-btn" id="clearBtn">Clear All</button>
+    </div>
+  </main>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

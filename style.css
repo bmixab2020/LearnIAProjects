@@ -1,0 +1,166 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: system-ui, sans-serif;
+  background: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.calculator {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+  width: 100%;
+  max-width: 720px;
+}
+
+h1 {
+  text-align: center;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.sheet {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 1rem;
+}
+
+.sheet th,
+.sheet td {
+  border: 1px solid #e5e7eb;
+  padding: 0.4rem;
+  text-align: center;
+}
+
+.sheet th {
+  background: #f3f4f6;
+  color: #374151;
+  font-size: 0.85rem;
+}
+
+th[data-sort] {
+  cursor: pointer;
+  user-select: none;
+}
+
+th[data-sort]::after {
+  content: " \2195";
+  color: #9ca3af;
+  font-size: 0.75rem;
+}
+
+th[data-sort].sorted-asc::after {
+  content: " \25B2";
+  color: #2563eb;
+}
+
+th[data-sort].sorted-desc::after {
+  content: " \25BC";
+  color: #2563eb;
+}
+
+th[data-sort]:hover {
+  background: #e5e7eb;
+}
+
+.sheet input {
+  width: 100%;
+  padding: 0.4rem;
+  border: none;
+  font-size: 1rem;
+  outline: none;
+}
+
+.sheet input.num-input {
+  text-align: right;
+}
+
+.sheet td.note-col input {
+  text-align: left;
+}
+
+.sheet td.date-col input {
+  font-size: 0.85rem;
+}
+
+.sheet input:focus {
+  background: #eff6ff;
+}
+
+.op-select {
+  padding: 0.3rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.remove-btn {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.3rem 0.6rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.remove-btn:hover {
+  background: #dc2626;
+}
+
+.total-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #111827;
+  color: #fbbf24;
+  font-size: 1.4rem;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actions button {
+  flex: 1;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.actions button:hover {
+  background: #1d4ed8;
+}
+
+.actions .print-btn {
+  background: #059669;
+}
+
+.actions .print-btn:hover {
+  background: #047857;
+}
+
+.actions .clear-btn {
+  background: #6b7280;
+}
+
+.actions .clear-btn:hover {
+  background: #4b5563;
+}
