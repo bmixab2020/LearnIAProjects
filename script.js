@@ -122,7 +122,6 @@ function createRow(index) {
   const noteInput = document.createElement("input");
   noteInput.type = "text";
   noteInput.className = "note-input";
-  noteInput.placeholder = "Note...";
   tdNote.appendChild(noteInput);
 
   const tdDate = document.createElement("td");
