@@ -28,15 +28,29 @@ h1 {
   margin-bottom: 0.5rem;
 }
 
+.title-wrap {
+  position: relative;
+  margin-bottom: 1rem;
+}
+
+.pencil-icon {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+  font-size: 1rem;
+  pointer-events: none;
+}
+
 .sheet-title {
   display: block;
   width: 100%;
   text-align: center;
-  font-size: 1.3rem;
-  font-weight: bold;
+  font-size: 1rem;
   color: #1f2937;
-  padding: 0.6rem;
-  margin-bottom: 1rem;
+  padding: 0.55rem;
+  padding-left: 2.2rem;
   border: 1px dashed #cbd5e1;
   border-radius: 8px;
   outline: none;
@@ -69,6 +83,7 @@ h1 {
 th[data-sort] {
   cursor: pointer;
   user-select: none;
+  white-space: nowrap;
 }
 
 th[data-sort]::after {
@@ -150,10 +165,10 @@ th[data-sort]:hover {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #111827;
-  color: #fbbf24;
-  font-size: 1.4rem;
-  padding: 1rem;
+  background: #f3f4f6;
+  color: #1f2937;
+  font-size: 1rem;
+  padding: 0.5rem 0.75rem;
   border-radius: 8px;
   margin-bottom: 1rem;
 }
