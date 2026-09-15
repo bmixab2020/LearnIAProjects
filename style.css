@@ -25,7 +25,26 @@ body {
 h1 {
   text-align: center;
   color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.sheet-title {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: bold;
+  color: #1f2937;
+  padding: 0.6rem;
   margin-bottom: 1rem;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  outline: none;
+}
+
+.sheet-title:focus {
+  border-color: #2563eb;
+  border-style: solid;
 }
 
 .sheet {
@@ -137,6 +156,34 @@ th[data-sort]:hover {
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1rem;
+}
+
+.save-bar {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.save-bar select {
+  flex: 1;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.save-bar button {
+  background: #059669;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.save-bar button:hover {
+  background: #047857;
 }
 
 .actions {

@@ -3,6 +3,11 @@ const display = document.getElementById("display");
 const addRowBtn = document.getElementById("addRowBtn");
 const clearBtn = document.getElementById("clearBtn");
 const printBtn = document.getElementById("printBtn");
+const sheetTitle = document.getElementById("sheetTitle");
+const savedSheets = document.getElementById("savedSheets");
+const saveBtn = document.getElementById("saveBtn");
+
+const STORAGE_KEY = "expenseSheets";
 
 const ROW_COUNT = 5;
 
@@ -149,8 +154,8 @@ function createRow(index) {
   tr.appendChild(tdQty);
   tr.appendChild(tdNum);
   tr.appendChild(tdTotal);
-  tr.appendChild(tdNote);
   tr.appendChild(tdDate);
+  tr.appendChild(tdNote);
   tr.appendChild(tdBtn);
   rowsBody.appendChild(tr);
 }
@@ -251,15 +256,15 @@ printBtn.addEventListener("click", () => {
 
   const doc = new jspdf.jsPDF();
   doc.setFontSize(18);
-  doc.text("Expense Report", 14, 16);
+  doc.text(sheetTitle.value.trim() || "Expense Report", 14, 16);
   doc.setFontSize(11);
   doc.setFont("helvetica", "bold");
   doc.text("#", 12, 28);
   doc.text("Qty", 42, 28, { align: "right" });
   doc.text("Amount", 72, 28, { align: "right" });
   doc.text("Total", 112, 28, { align: "right" });
-  doc.text("Notes", 118, 28);
-  doc.text("Date", 160, 28);
+  doc.text("Date", 118, 28);
+  doc.text("Notes", 160, 28);
 
   doc.setFont("helvetica", "normal");
   let y = 34;
@@ -272,8 +277,8 @@ printBtn.addEventListener("click", () => {
       doc.text("Qty", 42, y, { align: "right" });
       doc.text("Amount", 72, y, { align: "right" });
       doc.text("Total", 112, y, { align: "right" });
-      doc.text("Notes", 118, y);
-      doc.text("Date", 160, y);
+      doc.text("Date", 118, y);
+      doc.text("Notes", 160, y);
       doc.setFont("helvetica", "normal");
       y += 6;
     }
@@ -281,8 +286,8 @@ printBtn.addEventListener("click", () => {
     doc.text(String(row.qty), 42, y, { align: "right" });
     doc.text(formatCurrency(row.amount), 72, y, { align: "right" });
     doc.text(formatCurrency(row.signed), 112, y, { align: "right" });
-    doc.text(row.note || "-", 118, y);
-    doc.text(formatDate(row.date), 160, y);
+    doc.text(formatDate(row.date), 118, y);
+    doc.text(row.note || "-", 160, y);
     y += 7;
   });
 
@@ -301,3 +306,92 @@ printBtn.addEventListener("click", () => {
 
 resetRows();
 renderTotal();
+
+const now = new Date();
+sheetTitle.value =
+  "Expense Report for " + now.toLocaleString("en-US", { month: "long" });
+
+function getSavedSheets() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function readRowsFromDom() {
+  return Array.from(rowsBody.querySelectorAll("tr[data-index]")).map((row) => ({
+    op: row.querySelector(".op-select").value,
+    qty: row.querySelector(".qty-input").value,
+    amount: row.querySelector(".num-input").value,
+    note: row.querySelector(".note-input").value,
+    date: row.querySelector(".date-input").value
+  }));
+}
+
+function updateSavedSheetsList(selectedIndex) {
+  const sheets = getSavedSheets();
+  savedSheets.innerHTML = '<option value="">Load a saved sheet...</option>';
+  sheets.forEach((sheet, i) => {
+    const opt = document.createElement("option");
+    opt.value = String(i);
+    opt.textContent = sheet.name;
+    if (i === selectedIndex) {
+      opt.selected = true;
+    }
+    savedSheets.appendChild(opt);
+  });
+}
+
+saveBtn.addEventListener("click", () => {
+  const cleanTitle = sheetTitle.value.trim();
+  const name = cleanTitle || "Expense Report";
+  const sheets = getSavedSheets();
+  const data = {
+    name,
+    title: cleanTitle,
+    rows: readRowsFromDom(),
+    savedAt: new Date().toISOString()
+  };
+
+  const existing = sheets.findIndex((s) => s.name === name);
+  if (existing >= 0) {
+    sheets[existing] = data;
+  } else {
+    sheets.push(data);
+  }
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(sheets));
+  updateSavedSheetsList(sheets.findIndex((s) => s.name === name));
+  alert("Sheet saved: " + name);
+});
+
+savedSheets.addEventListener("change", () => {
+  const idx = Number(savedSheets.value);
+  if (savedSheets.value === "") {
+    return;
+  }
+  const sheets = getSavedSheets();
+  const sheet = sheets[idx];
+  if (!sheet) {
+    return;
+  }
+  sheetTitle.value = sheet.title || "";
+
+  if (!sheet.rows || sheet.rows.length === 0) {
+    resetRows();
+  } else {
+    rowsBody.innerHTML = "";
+    sheet.rows.forEach((r, i) => {
+      createRow(i);
+      const row = rowsBody.children[i];
+      row.querySelector(".op-select").value = r.op || "+";
+      row.querySelector(".qty-input").value = r.qty || "1";
+      row.querySelector(".num-input").value = r.amount || "";
+      row.querySelector(".note-input").value = r.note || "";
+      row.querySelector(".date-input").value = r.date || "";
+    });
+  }
+  renderTotal();
+});
+
+updateSavedSheetsList();

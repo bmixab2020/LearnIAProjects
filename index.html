@@ -10,6 +10,8 @@
   <main class="calculator">
     <h1>Calculate Expense Sheet</h1>
 
+    <input type="text" id="sheetTitle" class="sheet-title" placeholder="Sheet name...">
+
     <table class="sheet">
       <thead>
         <tr>
@@ -18,8 +20,8 @@
           <th data-sort="qty"># of Item</th>
           <th data-sort="amount">Amount</th>
           <th data-sort="total">Total</th>
-          <th data-sort="note">Notes</th>
           <th data-sort="date">Date</th>
+          <th data-sort="note">Notes</th>
           <th></th>
         </tr>
       </thead>
@@ -29,6 +31,13 @@
     <div class="total-row">
       <span>Total</span>
       <strong id="display">0</strong>
+    </div>
+
+    <div class="save-bar">
+      <select id="savedSheets">
+        <option value="">Load a saved sheet...</option>
+      </select>
+      <button id="saveBtn">Save</button>
     </div>
 
     <div class="actions">
