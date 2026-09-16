@@ -10,9 +10,14 @@
   <main class="calculator">
     <h1>Calculate Expense Sheet</h1>
 
-    <div class="title-wrap">
-      <span class="pencil-icon">&#9998;</span>
-      <input type="text" id="sheetTitle" class="sheet-title" placeholder="Sheet name...">
+<div class="title-row">
+      <div class="title-wrap">
+        <span class="pencil-icon">&#9998;</span>
+        <input type="text" id="sheetTitle" class="sheet-title" placeholder="Report Name">
+      </div>
+      <button id="saveBtn">Save</button>
+      <button class="clear-btn" id="clearBtn">New Report</button>
+      <button class="print-btn" id="printBtn">Print (PDF)</button>
     </div>
 
     <div class="table-scroll">
@@ -30,6 +35,13 @@
           </tr>
         </thead>
         <tbody id="rowsBody"></tbody>
+        <tfoot>
+          <tr>
+            <td colspan="1">
+              <button id="addRowBtn" class="add-row-btn" title="Add Row">+</button>
+            </td>
+          </tr>
+        </tfoot>
       </table>
     </div>
 
@@ -42,16 +54,9 @@
       <select id="savedSheets">
         <option value="">Load a saved sheet...</option>
       </select>
-      <button id="saveBtn">Save</button>
       <button class="io-btn" id="exportBtn">Export</button>
       <button class="io-btn" id="importBtn">Import</button>
       <input type="file" id="importFile" accept=".json,application/json" hidden>
-    </div>
-
-    <div class="actions">
-      <button id="addRowBtn">+ Add Row</button>
-      <button class="print-btn" id="printBtn">Print (PDF)</button>
-      <button class="clear-btn" id="clearBtn">New Report</button>
     </div>
   </main>
 
