@@ -116,6 +116,17 @@ th[data-sort]:hover {
 
 .sheet input.num-input {
   text-align: right;
+  font-size: 1.05rem;
+}
+
+.sheet th[data-sort="amount"],
+.sheet td.num-col {
+  min-width: 130px;
+}
+
+.sheet th[data-sort="total"],
+.sheet td.total-col {
+  min-width: 130px;
 }
 
 .sheet input.qty-input {
