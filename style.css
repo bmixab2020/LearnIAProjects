@@ -19,13 +19,56 @@ body {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
   padding: 2rem;
   width: 100%;
-  max-width: 960px;
+  max-width: 1200px;
 }
 
 h1 {
   text-align: center;
   color: #1f2937;
   margin-bottom: 0.5rem;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.title-row .title-wrap {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.title-row button {
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.55rem 0.9rem;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.title-row button:hover {
+  background: #1d4ed8;
+}
+
+.title-row .print-btn {
+  background: #059669;
+}
+
+.title-row .print-btn:hover {
+  background: #047857;
+}
+
+.title-row .clear-btn {
+  background: #6b7280;
+}
+
+.title-row .clear-btn:hover {
+  background: #4b5563;
 }
 
 .title-wrap {
@@ -150,7 +193,7 @@ th[data-sort]:hover {
 }
 
 .sheet th:nth-child(8) {
-  width: 100px;
+  width: 50px;
 }
 
 .sheet input.qty-input {
@@ -186,9 +229,11 @@ th[data-sort]:hover {
   background: #ef4444;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 0.3rem 0.6rem;
-  font-size: 0.8rem;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 1.1rem;
+  line-height: 1;
   cursor: pointer;
 }
 
@@ -196,16 +241,22 @@ th[data-sort]:hover {
   background: #dc2626;
 }
 
-.total-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: #f3f4f6;
+.sheet tr.total-foot-row td {
   color: #1f2937;
-  font-size: 1rem;
-  padding: 0.5rem 0.75rem;
-  border-radius: 8px;
-  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.sheet tr.total-foot-row .total-label {
+  text-align: left;
+}
+
+.sheet tr.total-foot-row .total-val-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sheet tr.total-foot-row .total-val-cell strong {
+  font-weight: 700;
 }
 
 .save-bar {
@@ -244,38 +295,18 @@ th[data-sort]:hover {
   background: #047857;
 }
 
-.actions {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.actions button {
-  flex: 1;
+.add-row-btn {
   background: #2563eb;
   color: #fff;
   border: none;
-  border-radius: 6px;
-  padding: 0.6rem;
-  font-size: 1rem;
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  font-size: 1.1rem;
+  line-height: 1;
   cursor: pointer;
 }
 
-.actions button:hover {
+.add-row-btn:hover {
   background: #1d4ed8;
-}
-
-.actions .print-btn {
-  background: #059669;
-}
-
-.actions .print-btn:hover {
-  background: #047857;
-}
-
-.actions .clear-btn {
-  background: #6b7280;
-}
-
-.actions .clear-btn:hover {
-  background: #4b5563;
 }

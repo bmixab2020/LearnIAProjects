@@ -143,7 +143,8 @@ function createRow(index) {
   const tdBtn = document.createElement("td");
   const removeBtn = document.createElement("button");
   removeBtn.className = "remove-btn";
-  removeBtn.textContent = "Remove";
+  removeBtn.textContent = "-";
+  removeBtn.title = "Remove Row";
   removeBtn.addEventListener("click", () => {
     tr.remove();
     renumber();
@@ -262,51 +263,77 @@ printBtn.addEventListener("click", () => {
     });
 
   const doc = new jspdf.jsPDF();
-  doc.setFontSize(18);
-  doc.text(sheetTitle.value.trim() || "Expense Report", 14, 16);
-  doc.setFontSize(11);
-  doc.setFont("helvetica", "bold");
-  doc.text("#", 12, 28);
-  doc.text("Qty", 42, 28, { align: "right" });
-  doc.text("Amount", 72, 28, { align: "right" });
-  doc.text("Total", 112, 28, { align: "right" });
-  doc.text("Date", 118, 28);
-  doc.text("Notes", 160, 28);
+  const LEFT = 20;
+  const RIGHT = 192;
+  const COLS = [20, 34, 48, 78, 106, 132, 192];
 
-  doc.setFont("helvetica", "normal");
-  let y = 34;
+  const drawVerticals = (xs, fromY, toY) => {
+    xs.forEach((x) => doc.line(x, fromY, x, toY));
+  };
+
+  const drawHeader = (y) => {
+    doc.setFont("helvetica", "bold");
+    doc.text("#", 27, y, { align: "center" });
+    doc.text("Qty", 41, y, { align: "center" });
+    doc.text("Amount", 63, y, { align: "center" });
+    doc.text("Total", 92, y, { align: "center" });
+    doc.text("Date", 119, y, { align: "center" });
+    doc.text("Notes", 162, y, { align: "center" });
+    doc.setFont("helvetica", "normal");
+  };
+
+  doc.setFontSize(18);
+  doc.text(sheetTitle.value.trim() || "Expense Report", 105, 16, {
+    align: "center"
+  });
+  doc.setFontSize(11);
+
+  drawHeader(30);
+  doc.line(LEFT, 26, RIGHT, 26);
+  doc.line(LEFT, 32, RIGHT, 32);
+  drawVerticals(COLS, 26, 32);
+  let rowTop = 32;
+
+  const drawRow = (row, y) => {
+    doc.text(String(row.index), 32, y, { align: "right" });
+    doc.text(String(row.qty), 46, y, { align: "right" });
+    doc.text(formatCurrency(row.amount), 76, y, { align: "right" });
+    doc.text(formatCurrency(row.signed), 104, y, { align: "right" });
+    doc.text(formatDate(row.date), 130, y, { align: "right" });
+    doc.text(row.note || "-", 135, y);
+  };
+
   data.forEach((row) => {
-    if (y > 270) {
+    let y = rowTop + 8;
+    if (y > 268) {
+      doc.line(LEFT, rowTop, RIGHT, rowTop);
       doc.addPage();
-      y = 20;
-      doc.setFont("helvetica", "bold");
-      doc.text("#", 12, y);
-      doc.text("Qty", 42, y, { align: "right" });
-      doc.text("Amount", 72, y, { align: "right" });
-      doc.text("Total", 112, y, { align: "right" });
-      doc.text("Date", 118, y);
-      doc.text("Notes", 160, y);
-      doc.setFont("helvetica", "normal");
-      y += 6;
+      drawHeader(22);
+      doc.line(LEFT, 18, RIGHT, 18);
+      doc.line(LEFT, 24, RIGHT, 24);
+      drawVerticals(COLS, 18, 24);
+      rowTop = 24;
+      y = rowTop + 8;
     }
-    doc.text(String(row.index), 12, y);
-    doc.text(String(row.qty), 42, y, { align: "right" });
-    doc.text(formatCurrency(row.amount), 72, y, { align: "right" });
-    doc.text(formatCurrency(row.signed), 112, y, { align: "right" });
-    doc.text(formatDate(row.date), 118, y);
-    doc.text(row.note || "-", 160, y);
-    y += 7;
+    drawRow(row, y);
+    doc.line(LEFT, y + 2, RIGHT, y + 2);
+    drawVerticals(COLS, rowTop, y + 2);
+    rowTop = y + 2;
   });
 
+  const total = data.reduce((sum, row) => sum + row.signed, 0);
+  let totalY = rowTop + 10;
+  if (totalY > 278) {
+    doc.addPage();
+    totalY = 24;
+  }
+  doc.line(LEFT, totalY - 4, RIGHT, totalY - 4);
+  drawVerticals(COLS, rowTop, totalY - 4);
   doc.setFont("helvetica", "bold");
-  doc.line(12, y - 4, 172, y - 4);
-  doc.text("Total:", 12, y + 2);
-  doc.text(
-    formatCurrency(data.reduce((sum, row) => sum + row.signed, 0)),
-    112,
-    y + 2,
-    { align: "right" }
-  );
+  doc.text("Grand Total:", 20, totalY);
+  doc.text(formatCurrency(total), 104, totalY, { align: "right" });
+  doc.line(LEFT, totalY + 2, RIGHT, totalY + 2);
+  drawVerticals([20, 78, 106, 132, 192], totalY - 4, totalY + 2);
 
   doc.save("sheet.pdf");
 });
