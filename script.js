@@ -6,6 +6,9 @@ const printBtn = document.getElementById("printBtn");
 const sheetTitle = document.getElementById("sheetTitle");
 const savedSheets = document.getElementById("savedSheets");
 const saveBtn = document.getElementById("saveBtn");
+const exportBtn = document.getElementById("exportBtn");
+const importBtn = document.getElementById("importBtn");
+const importFile = document.getElementById("importFile");
 
 const STORAGE_KEY = "expenseSheets";
 
@@ -171,7 +174,12 @@ addRowBtn.addEventListener("click", () => {
   renderTotal();
 });
 
-clearBtn.addEventListener("click", resetRows);
+clearBtn.addEventListener("click", () => {
+  sheetTitle.value = "";
+  savedSheets.value = "";
+  resetRows();
+  renderTotal();
+});
 
 const sortableThs = Array.from(document.querySelectorAll(".sheet th[data-sort]"));
 
@@ -307,8 +315,7 @@ resetRows();
 renderTotal();
 
 const now = new Date();
-sheetTitle.value =
-  "Expense Report for " + now.toLocaleString("en-US", { month: "long" });
+sheetTitle.placeholder = "Report Name";
 
 function getSavedSheets() {
   try {
@@ -342,6 +349,85 @@ function updateSavedSheetsList(selectedIndex) {
   });
 }
 
+function normalizeSheets(data) {
+  if (!Array.isArray(data)) {
+    return [];
+  }
+  return data
+    .filter((s) => s && typeof s === "object" && s.name)
+    .map((s) => ({
+      name: String(s.name),
+      title: typeof s.title === "string" ? s.title : String(s.name),
+      rows: Array.isArray(s.rows) ? s.rows : [],
+      savedAt: s.savedAt || new Date().toISOString()
+    }));
+}
+
+exportBtn.addEventListener("click", () => {
+  const sheets = getSavedSheets();
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const stamp =
+    "" +
+    d.getFullYear() +
+    pad(d.getMonth() + 1) +
+    pad(d.getDate()) +
+    pad(d.getHours()) +
+    pad(d.getMinutes());
+  const blob = new Blob([JSON.stringify(sheets, null, 2)], {
+    type: "application/json"
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "expense-sheets_" + stamp + ".json";
+  a.click();
+  URL.revokeObjectURL(url);
+});
+
+importBtn.addEventListener("click", () => {
+  sheetTitle.value = "";
+  savedSheets.value = "";
+  resetRows();
+  renderTotal();
+  importFile.click();
+});
+
+importFile.addEventListener("change", () => {
+  const file = importFile.files[0];
+  if (!file) {
+    return;
+  }
+  const reader = new FileReader();
+  reader.onload = () => {
+    try {
+      const imported = normalizeSheets(JSON.parse(reader.result));
+      if (imported.length === 0) {
+        alert("No saved sheets found in the file.");
+        return;
+      }
+      const sheets = getSavedSheets();
+      imported.forEach((sheet) => {
+        const idx = sheets.findIndex((s) => s.name === sheet.name);
+        if (idx >= 0) {
+          sheets[idx] = sheet;
+        } else {
+          sheets.push(sheet);
+        }
+      });
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sheets));
+      updateSavedSheetsList();
+      alert(
+        "Imported " + imported.length + " sheet(s) from " + file.name + "."
+      );
+    } catch (error) {
+      alert("Invalid file. Could not import.");
+    }
+  };
+  reader.readAsText(file);
+  importFile.value = "";
+});
+
 saveBtn.addEventListener("click", () => {
   const cleanTitle = sheetTitle.value.trim();
   const name = cleanTitle || "Expense Report";
@@ -355,6 +441,12 @@ saveBtn.addEventListener("click", () => {
 
   const existing = sheets.findIndex((s) => s.name === name);
   if (existing >= 0) {
+    const ok = confirm(
+      'A sheet named "' + name + '" already exists. Update it?'
+    );
+    if (!ok) {
+      return;
+    }
     sheets[existing] = data;
   } else {
     sheets.push(data);

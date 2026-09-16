@@ -15,21 +15,23 @@
       <input type="text" id="sheetTitle" class="sheet-title" placeholder="Sheet name...">
     </div>
 
-    <table class="sheet">
-      <thead>
-        <tr>
-          <th data-sort="index">#</th>
-          <th>Operation</th>
-          <th data-sort="qty"># of Item</th>
-          <th data-sort="amount">Amount</th>
-          <th data-sort="total">Total</th>
-          <th data-sort="date">Date</th>
-          <th data-sort="note">Notes</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody id="rowsBody"></tbody>
-    </table>
+    <div class="table-scroll">
+      <table class="sheet">
+        <thead>
+          <tr>
+            <th data-sort="index">#</th>
+            <th>Operation</th>
+            <th data-sort="qty"># of Item</th>
+            <th data-sort="amount">Amount</th>
+            <th data-sort="total">Total</th>
+            <th data-sort="date">Date</th>
+            <th data-sort="note">Notes</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="rowsBody"></tbody>
+      </table>
+    </div>
 
     <div class="total-row">
       <span>Total</span>
@@ -41,12 +43,15 @@
         <option value="">Load a saved sheet...</option>
       </select>
       <button id="saveBtn">Save</button>
+      <button class="io-btn" id="exportBtn">Export</button>
+      <button class="io-btn" id="importBtn">Import</button>
+      <input type="file" id="importFile" accept=".json,application/json" hidden>
     </div>
 
     <div class="actions">
       <button id="addRowBtn">+ Add Row</button>
       <button class="print-btn" id="printBtn">Print (PDF)</button>
-      <button class="clear-btn" id="clearBtn">Clear All</button>
+      <button class="clear-btn" id="clearBtn">New Report</button>
     </div>
   </main>
 
