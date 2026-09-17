@@ -3,17 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calculate Expense Sheet</title>
+  <title>Calculate Sheet</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <main class="calculator">
-    <h1>Calculate Expense Sheet</h1>
+    <h1>Calculate Sheet</h1>
 
 <div class="title-row">
       <div class="title-wrap">
         <span class="pencil-icon">&#9998;</span>
-        <input type="text" id="sheetTitle" class="sheet-title" placeholder="Report Name">
+        <input type="text" id="sheetTitle" class="sheet-title" placeholder="Sheet Name">
       </div>
       <button id="saveBtn">Save</button>
       <button class="clear-btn" id="clearBtn">New Report</button>
@@ -28,6 +28,7 @@
             <th>Operation</th>
             <th data-sort="qty"># of Item</th>
             <th data-sort="amount">Amount</th>
+            <th data-sort="discount">Discount</th>
             <th data-sort="total">Total</th>
             <th data-sort="date">Date</th>
             <th data-sort="note">Notes</th>
@@ -42,7 +43,7 @@
             </td>
           </tr>
           <tr class="total-foot-row">
-            <td colspan="4" class="total-label">Grand Total:</td>
+            <td colspan="5" class="total-label">Grand Total:</td>
             <td class="total-val-cell"><strong id="display">0</strong></td>
             <td colspan="3"></td>
           </tr>
@@ -54,8 +55,8 @@
       <select id="savedSheets">
         <option value="">Load a saved sheet...</option>
       </select>
-      <button class="io-btn" id="exportBtn">Export</button>
-      <button class="io-btn" id="importBtn">Import</button>
+      <button class="io-btn" id="exportBtn" title="Export Local storage data">Export</button>
+      <button class="io-btn" id="importBtn" title="Import Local storage data">Import</button>
       <input type="file" id="importFile" accept=".json,application/json" hidden>
     </div>
   </main>

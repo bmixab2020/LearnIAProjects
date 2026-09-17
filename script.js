@@ -39,7 +39,8 @@ function computeTotal() {
     const op = row.querySelector(".op-select").value;
     const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
     const amount = parseFloat(row.querySelector(".num-input").value) || 0;
-    const value = qty * amount;
+    const discount = parseFloat(row.querySelector(".discount-input").value) || 0;
+    const value = qty * (amount - discount);
     if (op === "+") {
       total += value;
     } else {
@@ -54,7 +55,8 @@ function renderRowTotal(row) {
   const op = row.querySelector(".op-select").value;
   const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
   const amount = parseFloat(row.querySelector(".num-input").value) || 0;
-  const value = qty * amount;
+  const discount = parseFloat(row.querySelector(".discount-input").value) || 0;
+  const value = qty * (amount - discount);
   const shown = op === "-" ? -value : value;
   row.querySelector(".total-col").textContent = formatCurrency(shown);
 }
@@ -116,6 +118,16 @@ function createRow(index) {
   input.addEventListener("input", renderTotal);
   tdNum.appendChild(input);
 
+  const tdDiscount = document.createElement("td");
+  tdDiscount.className = "discount-col";
+  const discountInput = document.createElement("input");
+  discountInput.type = "number";
+  discountInput.className = "discount-input";
+  discountInput.min = "0";
+  discountInput.value = "0";
+  discountInput.addEventListener("input", renderTotal);
+  tdDiscount.appendChild(discountInput);
+
   const tdTotal = document.createElement("td");
   tdTotal.className = "total-col";
   tdTotal.textContent = formatCurrency(0);
@@ -156,6 +168,7 @@ function createRow(index) {
   tr.appendChild(tdOp);
   tr.appendChild(tdQty);
   tr.appendChild(tdNum);
+  tr.appendChild(tdDiscount);
   tr.appendChild(tdTotal);
   tr.appendChild(tdDate);
   tr.appendChild(tdNote);
@@ -193,14 +206,17 @@ function rowValue(row, key) {
   if (key === "qty") {
     return parseFloat(row.querySelector(".qty-input").value) || 0;
   }
-  if (key === "amount") {
+  if (key === "discount") {
+    return parseFloat(row.querySelector(".discount-input").value) || 0;
+  }
+  if (key === "amount" || key === "total") {
     const op = row.querySelector(".op-select").value;
     const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
-    const value = qty * (parseFloat(row.querySelector(".num-input").value) || 0);
+    const amount = parseFloat(row.querySelector(".num-input").value) || 0;
+    const discount =
+      parseFloat(row.querySelector(".discount-input").value) || 0;
+    const value = qty * (amount - discount);
     return op === "-" ? -value : value;
-  }
-  if (key === "total") {
-    return rowValue(row, "amount");
   }
   if (key === "note") {
     return row.querySelector(".note-input").value.trim().toLowerCase();
@@ -249,13 +265,17 @@ printBtn.addEventListener("click", () => {
       const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
       const raw = row.querySelector(".num-input").value;
       const amount = raw === "" ? 0 : parseFloat(raw);
-      const signed = op === "-" ? -amount * qty : amount * qty;
+      const discount =
+        parseFloat(row.querySelector(".discount-input").value) || 0;
+      const perItem = amount - discount;
+      const signed = op === "-" ? -perItem * qty : perItem * qty;
       const note = row.querySelector(".note-input").value.trim();
       const date = row.querySelector(".date-input").value;
       return {
         index: i + 1,
         qty,
         amount,
+        discount,
         signed,
         note: note.length > 40 ? note.slice(0, 40) + "..." : note,
         date
@@ -265,7 +285,7 @@ printBtn.addEventListener("click", () => {
   const doc = new jspdf.jsPDF();
   const LEFT = 20;
   const RIGHT = 192;
-  const COLS = [20, 34, 48, 78, 106, 132, 192];
+  const COLS = [20, 34, 48, 72, 90, 112, 136, 192];
 
   const drawVerticals = (xs, fromY, toY) => {
     xs.forEach((x) => doc.line(x, fromY, x, toY));
@@ -275,10 +295,11 @@ printBtn.addEventListener("click", () => {
     doc.setFont("helvetica", "bold");
     doc.text("#", 27, y, { align: "center" });
     doc.text("Qty", 41, y, { align: "center" });
-    doc.text("Amount", 63, y, { align: "center" });
-    doc.text("Total", 92, y, { align: "center" });
-    doc.text("Date", 119, y, { align: "center" });
-    doc.text("Notes", 162, y, { align: "center" });
+    doc.text("Amount", 60, y, { align: "center" });
+    doc.text("Disc", 81, y, { align: "center" });
+    doc.text("Total", 101, y, { align: "center" });
+    doc.text("Date", 124, y, { align: "center" });
+    doc.text("Notes", 164, y, { align: "center" });
     doc.setFont("helvetica", "normal");
   };
 
@@ -297,10 +318,11 @@ printBtn.addEventListener("click", () => {
   const drawRow = (row, y) => {
     doc.text(String(row.index), 32, y, { align: "right" });
     doc.text(String(row.qty), 46, y, { align: "right" });
-    doc.text(formatCurrency(row.amount), 76, y, { align: "right" });
-    doc.text(formatCurrency(row.signed), 104, y, { align: "right" });
-    doc.text(formatDate(row.date), 130, y, { align: "right" });
-    doc.text(row.note || "-", 135, y);
+    doc.text(formatCurrency(row.amount), 70, y, { align: "right" });
+    doc.text(formatCurrency(row.discount), 88, y, { align: "right" });
+    doc.text(formatCurrency(row.signed), 110, y, { align: "right" });
+    doc.text(formatDate(row.date), 134, y, { align: "right" });
+    doc.text(row.note || "-", 139, y);
   };
 
   data.forEach((row) => {
@@ -331,9 +353,9 @@ printBtn.addEventListener("click", () => {
   drawVerticals(COLS, rowTop, totalY - 4);
   doc.setFont("helvetica", "bold");
   doc.text("Grand Total:", 20, totalY);
-  doc.text(formatCurrency(total), 104, totalY, { align: "right" });
+  doc.text(formatCurrency(total), 110, totalY, { align: "right" });
   doc.line(LEFT, totalY + 2, RIGHT, totalY + 2);
-  drawVerticals([20, 78, 106, 132, 192], totalY - 4, totalY + 2);
+  drawVerticals([20, 90, 112, 136, 192], totalY - 4, totalY + 2);
 
   doc.save("sheet.pdf");
 });
@@ -342,7 +364,7 @@ resetRows();
 renderTotal();
 
 const now = new Date();
-sheetTitle.placeholder = "Report Name";
+sheetTitle.placeholder = "Sheet Name";
 
 function getSavedSheets() {
   try {
@@ -357,6 +379,7 @@ function readRowsFromDom() {
     op: row.querySelector(".op-select").value,
     qty: row.querySelector(".qty-input").value,
     amount: row.querySelector(".num-input").value,
+    discount: row.querySelector(".discount-input").value,
     note: row.querySelector(".note-input").value,
     date: row.querySelector(".date-input").value
   }));
@@ -505,6 +528,7 @@ savedSheets.addEventListener("change", () => {
       row.querySelector(".op-select").value = r.op || "+";
       row.querySelector(".qty-input").value = r.qty || "1";
       row.querySelector(".num-input").value = r.amount || "";
+      row.querySelector(".discount-input").value = r.discount || "0";
       row.querySelector(".note-input").value = r.note || "";
       row.querySelector(".date-input").value = r.date || "";
     });

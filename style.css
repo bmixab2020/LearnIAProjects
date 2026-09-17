@@ -64,11 +64,12 @@ h1 {
 }
 
 .title-row .clear-btn {
-  background: #6b7280;
+  background: #b8860b;
+  color: #fff;
 }
 
 .title-row .clear-btn:hover {
-  background: #4b5563;
+  background: #8b6508;
 }
 
 .title-wrap {
@@ -192,12 +193,24 @@ th[data-sort]:hover {
   width: 110px;
 }
 
+.sheet th:nth-child(7) {
+  width: 110px;
+}
+
 .sheet th:nth-child(8) {
-  width: 50px;
+  width: 260px;
+}
+
+.sheet th:nth-child(9) {
+  width: 36px;
 }
 
 .sheet input.qty-input {
-  text-align: center;
+  text-align: right;
+}
+
+.sheet input.discount-input {
+  text-align: right;
 }
 
 .sheet td.note-col input {
