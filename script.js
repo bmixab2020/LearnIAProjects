@@ -23,6 +23,37 @@ function formatCurrency(value) {
   return currencyFormatter.format(value);
 }
 
+function parseMoney(value) {
+  if (typeof value === "number") {
+    return value;
+  }
+  if (value === null || value === undefined) {
+    return 0;
+  }
+  const parsed = parseFloat(String(value).replace(/[$,\s]/g, ""));
+  return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function attachCurrencyFormatting(input) {
+  input.addEventListener("focus", () => {
+    const val = parseMoney(input.value);
+    input.value = val !== 0 || String(input.value).trim() !== "" ? String(val) : "";
+  });
+  input.addEventListener("blur", () => {
+    if (String(input.value).trim() !== "") {
+      input.value = formatCurrency(parseMoney(input.value));
+    }
+  });
+}
+
+function formatCurrencyInputs() {
+  document.querySelectorAll(".num-input, .discount-input").forEach((input) => {
+    if (String(input.value).trim() !== "") {
+      input.value = formatCurrency(parseMoney(input.value));
+    }
+  });
+}
+
 function formatDate(value) {
   if (!value) {
     return "-";
@@ -38,8 +69,8 @@ function computeTotal() {
   rows.forEach((row) => {
     const op = row.querySelector(".op-select").value;
     const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
-    const amount = parseFloat(row.querySelector(".num-input").value) || 0;
-    const discount = parseFloat(row.querySelector(".discount-input").value) || 0;
+    const amount = parseMoney(row.querySelector(".num-input").value);
+    const discount = parseMoney(row.querySelector(".discount-input").value);
     const value = qty * (amount - discount);
     if (op === "+") {
       total += value;
@@ -54,8 +85,8 @@ function computeTotal() {
 function renderRowTotal(row) {
   const op = row.querySelector(".op-select").value;
   const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
-  const amount = parseFloat(row.querySelector(".num-input").value) || 0;
-  const discount = parseFloat(row.querySelector(".discount-input").value) || 0;
+  const amount = parseMoney(row.querySelector(".num-input").value);
+  const discount = parseMoney(row.querySelector(".discount-input").value);
   const value = qty * (amount - discount);
   const shown = op === "-" ? -value : value;
   row.querySelector(".total-col").textContent = formatCurrency(shown);
@@ -63,7 +94,21 @@ function renderRowTotal(row) {
 
 function renderTotal() {
   const rows = Array.from(rowsBody.querySelectorAll("tr[data-index]"));
-  rows.forEach(renderRowTotal);
+  let qtySum = 0;
+  let amountSum = 0;
+  let discountSum = 0;
+  rows.forEach((row) => {
+    renderRowTotal(row);
+    const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
+    const amount = parseMoney(row.querySelector(".num-input").value);
+    const discount = parseMoney(row.querySelector(".discount-input").value);
+    qtySum += qty;
+    amountSum += qty * amount;
+    discountSum += qty * discount;
+  });
+  document.getElementById("qtySum").textContent = qtySum;
+  document.getElementById("amountSum").textContent = formatCurrency(amountSum);
+  document.getElementById("discountSum").textContent = formatCurrency(discountSum);
   display.textContent = formatCurrency(computeTotal());
 }
 
@@ -112,20 +157,23 @@ function createRow(index) {
 
   const tdNum = document.createElement("td");
   const input = document.createElement("input");
-  input.type = "number";
+  input.type = "text";
+  input.inputMode = "decimal";
   input.className = "num-input";
   input.placeholder = "0";
   input.addEventListener("input", renderTotal);
+  attachCurrencyFormatting(input);
   tdNum.appendChild(input);
 
   const tdDiscount = document.createElement("td");
   tdDiscount.className = "discount-col";
   const discountInput = document.createElement("input");
-  discountInput.type = "number";
+  discountInput.type = "text";
+  discountInput.inputMode = "decimal";
   discountInput.className = "discount-input";
-  discountInput.min = "0";
   discountInput.value = "0";
   discountInput.addEventListener("input", renderTotal);
+  attachCurrencyFormatting(discountInput);
   tdDiscount.appendChild(discountInput);
 
   const tdTotal = document.createElement("td");
@@ -207,14 +255,13 @@ function rowValue(row, key) {
     return parseFloat(row.querySelector(".qty-input").value) || 0;
   }
   if (key === "discount") {
-    return parseFloat(row.querySelector(".discount-input").value) || 0;
+    return parseMoney(row.querySelector(".discount-input").value);
   }
   if (key === "amount" || key === "total") {
     const op = row.querySelector(".op-select").value;
     const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
-    const amount = parseFloat(row.querySelector(".num-input").value) || 0;
-    const discount =
-      parseFloat(row.querySelector(".discount-input").value) || 0;
+    const amount = parseMoney(row.querySelector(".num-input").value);
+    const discount = parseMoney(row.querySelector(".discount-input").value);
     const value = qty * (amount - discount);
     return op === "-" ? -value : value;
   }
@@ -264,9 +311,8 @@ printBtn.addEventListener("click", () => {
       const op = row.querySelector(".op-select").value;
       const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
       const raw = row.querySelector(".num-input").value;
-      const amount = raw === "" ? 0 : parseFloat(raw);
-      const discount =
-        parseFloat(row.querySelector(".discount-input").value) || 0;
+      const amount = raw === "" ? 0 : parseMoney(raw);
+      const discount = parseMoney(row.querySelector(".discount-input").value);
       const perItem = amount - discount;
       const signed = op === "-" ? -perItem * qty : perItem * qty;
       const note = row.querySelector(".note-input").value.trim();
@@ -343,6 +389,12 @@ printBtn.addEventListener("click", () => {
     rowTop = y + 2;
   });
 
+  const qtySum = data.reduce((sum, row) => sum + row.qty, 0);
+  const amountSum = data.reduce((sum, row) => sum + row.qty * row.amount, 0);
+  const discountSum = data.reduce(
+    (sum, row) => sum + row.qty * row.discount,
+    0
+  );
   const total = data.reduce((sum, row) => sum + row.signed, 0);
   let totalY = rowTop + 10;
   if (totalY > 278) {
@@ -351,11 +403,15 @@ printBtn.addEventListener("click", () => {
   }
   doc.line(LEFT, totalY - 4, RIGHT, totalY - 4);
   drawVerticals(COLS, rowTop, totalY - 4);
+  doc.setFont("symbol", "normal");
+  doc.text("S", 27, totalY, { align: "center" });
   doc.setFont("helvetica", "bold");
-  doc.text("Grand Total:", 20, totalY);
+  doc.text(String(qtySum), 46, totalY, { align: "right" });
+  doc.text(formatCurrency(amountSum), 70, totalY, { align: "right" });
+  doc.text(formatCurrency(discountSum), 88, totalY, { align: "right" });
   doc.text(formatCurrency(total), 110, totalY, { align: "right" });
   doc.line(LEFT, totalY + 2, RIGHT, totalY + 2);
-  drawVerticals([20, 90, 112, 136, 192], totalY - 4, totalY + 2);
+  drawVerticals(COLS, totalY - 4, totalY + 2);
 
   doc.save("sheet.pdf");
 });
@@ -532,6 +588,7 @@ savedSheets.addEventListener("change", () => {
       row.querySelector(".note-input").value = r.note || "";
       row.querySelector(".date-input").value = r.date || "";
     });
+    formatCurrencyInputs();
   }
   renderTotal();
 });

@@ -263,6 +263,15 @@ th[data-sort]:hover {
   text-align: left;
 }
 
+.sheet tr.total-foot-row .sum-val-cell {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.sheet tr.total-foot-row .sum-val-cell strong {
+  font-weight: 700;
+}
+
 .sheet tr.total-foot-row .total-val-cell {
   text-align: right;
   white-space: nowrap;
