@@ -82,6 +82,26 @@ function computeTotal() {
   return total;
 }
 
+function getTimestamp() {
+  const d = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return (
+    "" +
+    d.getFullYear() +
+    pad(d.getMonth() + 1) +
+    pad(d.getDate()) +
+    pad(d.getHours()) +
+    pad(d.getMinutes())
+  );
+}
+
+function pdfFileName() {
+  const name = (sheetTitle.value.trim() || "Expense Report")
+    .replace(/[\\/:*?"<>|]/g, "")
+    .replace(/ +/g, "_");
+  return name + "_" + getTimestamp() + ".pdf";
+}
+
 function renderRowTotal(row) {
   const op = row.querySelector(".op-select").value;
   const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
@@ -99,12 +119,14 @@ function renderTotal() {
   let discountSum = 0;
   rows.forEach((row) => {
     renderRowTotal(row);
+    const op = row.querySelector(".op-select").value;
+    const sign = op === "-" ? -1 : 1;
     const qty = parseFloat(row.querySelector(".qty-input").value) || 0;
     const amount = parseMoney(row.querySelector(".num-input").value);
     const discount = parseMoney(row.querySelector(".discount-input").value);
     qtySum += qty;
-    amountSum += qty * amount;
-    discountSum += qty * discount;
+    amountSum += sign * qty * amount;
+    discountSum += sign * qty * discount;
   });
   document.getElementById("qtySum").textContent = qtySum;
   document.getElementById("amountSum").textContent = formatCurrency(amountSum);
@@ -182,9 +204,13 @@ function createRow(index) {
 
   const tdNote = document.createElement("td");
   tdNote.className = "note-col";
-  const noteInput = document.createElement("input");
-  noteInput.type = "text";
+  const noteInput = document.createElement("textarea");
   noteInput.className = "note-input";
+  noteInput.rows = "1";
+  noteInput.addEventListener("input", () => {
+    noteInput.style.height = "auto";
+    noteInput.style.height = noteInput.scrollHeight + "px";
+  });
   tdNote.appendChild(noteInput);
 
   const tdDate = document.createElement("td");
@@ -319,11 +345,12 @@ printBtn.addEventListener("click", () => {
       const date = row.querySelector(".date-input").value;
       return {
         index: i + 1,
+        op,
         qty,
         amount,
         discount,
         signed,
-        note: note.length > 40 ? note.slice(0, 40) + "..." : note,
+        note,
         date
       };
     });
@@ -368,12 +395,15 @@ printBtn.addEventListener("click", () => {
     doc.text(formatCurrency(row.discount), 88, y, { align: "right" });
     doc.text(formatCurrency(row.signed), 110, y, { align: "right" });
     doc.text(formatDate(row.date), 134, y, { align: "right" });
-    doc.text(row.note || "-", 139, y);
   };
 
   data.forEach((row) => {
+    doc.setFontSize(9);
+    const noteLines = doc.splitTextToSize(row.note || "-", RIGHT - 139 - 4);
+    doc.setFontSize(11);
+    const extra = (noteLines.length - 1) * 5;
     let y = rowTop + 8;
-    if (y > 268) {
+    if (y + extra > 268) {
       doc.line(LEFT, rowTop, RIGHT, rowTop);
       doc.addPage();
       drawHeader(22);
@@ -384,15 +414,25 @@ printBtn.addEventListener("click", () => {
       y = rowTop + 8;
     }
     drawRow(row, y);
-    doc.line(LEFT, y + 2, RIGHT, y + 2);
-    drawVerticals(COLS, rowTop, y + 2);
-    rowTop = y + 2;
+    doc.setFontSize(9);
+    noteLines.forEach((line, li) => {
+      doc.text(line, 139, y + li * 5);
+    });
+    doc.setFontSize(11);
+    const bottom = y + 2 + extra;
+    doc.line(LEFT, bottom, RIGHT, bottom);
+    drawVerticals(COLS, rowTop, bottom);
+    rowTop = bottom;
   });
 
   const qtySum = data.reduce((sum, row) => sum + row.qty, 0);
-  const amountSum = data.reduce((sum, row) => sum + row.qty * row.amount, 0);
+  const signOf = (op) => (op === "-" ? -1 : 1);
+  const amountSum = data.reduce(
+    (sum, row) => sum + signOf(row.op) * row.qty * row.amount,
+    0
+  );
   const discountSum = data.reduce(
-    (sum, row) => sum + row.qty * row.discount,
+    (sum, row) => sum + signOf(row.op) * row.qty * row.discount,
     0
   );
   const total = data.reduce((sum, row) => sum + row.signed, 0);
@@ -413,7 +453,7 @@ printBtn.addEventListener("click", () => {
   doc.line(LEFT, totalY + 2, RIGHT, totalY + 2);
   drawVerticals(COLS, totalY - 4, totalY + 2);
 
-  doc.save("sheet.pdf");
+  doc.save(pdfFileName());
 });
 
 resetRows();
