@@ -213,8 +213,23 @@ th[data-sort]:hover {
   text-align: right;
 }
 
-.sheet td.note-col input {
+.sheet td.note-col {
+  vertical-align: top;
+}
+
+.sheet td.note-col textarea {
   text-align: left;
+  width: 100%;
+  display: block;
+  border: none;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem;
+  white-space: normal;
+  line-height: 1.2;
 }
 
 .sheet td.total-col {
