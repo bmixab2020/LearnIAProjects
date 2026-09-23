@@ -72,6 +72,15 @@ h1 {
   background: #8b6508;
 }
 
+.title-row .delete-btn {
+  background: #ef4444;
+  color: #fff;
+}
+
+.title-row .delete-btn:hover {
+  background: #dc2626;
+}
+
 .title-wrap {
   position: relative;
   margin-bottom: 1rem;

@@ -6,6 +6,7 @@ const printBtn = document.getElementById("printBtn");
 const sheetTitle = document.getElementById("sheetTitle");
 const savedSheets = document.getElementById("savedSheets");
 const saveBtn = document.getElementById("saveBtn");
+const deleteBtn = document.getElementById("deleteBtn");
 const exportBtn = document.getElementById("exportBtn");
 const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
@@ -553,18 +554,28 @@ importFile.addEventListener("change", () => {
         return;
       }
       const sheets = getSavedSheets();
+      let added = 0;
+      let updated = 0;
       imported.forEach((sheet) => {
         const idx = sheets.findIndex((s) => s.name === sheet.name);
         if (idx >= 0) {
           sheets[idx] = sheet;
+          updated++;
         } else {
           sheets.push(sheet);
+          added++;
         }
-      });
+});
       localStorage.setItem(STORAGE_KEY, JSON.stringify(sheets));
       updateSavedSheetsList();
       alert(
-        "Imported " + imported.length + " sheet(s) from " + file.name + "."
+        "Imported from " +
+          file.name +
+          ": " +
+          added +
+          " added, " +
+          updated +
+          " updated."
       );
     } catch (error) {
       alert("Invalid file. Could not import.");
@@ -634,3 +645,30 @@ savedSheets.addEventListener("change", () => {
 });
 
 updateSavedSheetsList();
+
+deleteBtn.addEventListener("click", () => {
+  if (savedSheets.value === "") {
+    alert("No saved sheet is selected to delete.");
+    return;
+  }
+  const idx = Number(savedSheets.value);
+  const sheets = getSavedSheets();
+  const sheet = sheets[idx];
+  if (!sheet) {
+    return;
+  }
+  const ok = confirm(
+    'Delete sheet "' + sheet.name + '"? This cannot be undone.'
+  );
+  if (!ok) {
+    return;
+  }
+  sheets.splice(idx, 1);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(sheets));
+  sheetTitle.value = "";
+  savedSheets.value = "";
+  resetRows();
+  renderTotal();
+  updateSavedSheetsList();
+  alert("Sheet deleted: " + sheet.name);
+});
