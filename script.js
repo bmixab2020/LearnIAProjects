@@ -546,6 +546,13 @@ importFile.addEventListener("change", () => {
   if (!file) {
     return;
   }
+  if (!/^expense-sheets_[0-9]{12}\.json$/.test(file.name)) {
+    alert(
+      "Incorrect file. Please choose a file exported from Calculation Sheet (expense-sheets_...)."
+    );
+    importFile.value = "";
+    return;
+  }
   const reader = new FileReader();
   reader.onload = () => {
     try {
