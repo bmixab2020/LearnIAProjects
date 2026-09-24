@@ -337,6 +337,14 @@ th[data-sort]:hover {
   background: #334155;
 }
 
+.save-bar button.io-btn.clear-io-btn {
+  background: #ef4444;
+}
+
+.save-bar button.io-btn.clear-io-btn:hover {
+  background: #dc2626;
+}
+
 .save-bar button:hover {
   background: #047857;
 }

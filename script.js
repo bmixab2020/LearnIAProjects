@@ -10,6 +10,7 @@ const deleteBtn = document.getElementById("deleteBtn");
 const exportBtn = document.getElementById("exportBtn");
 const importBtn = document.getElementById("importBtn");
 const importFile = document.getElementById("importFile");
+const clearStorageBtn = document.getElementById("clearStorageBtn");
 
 const STORAGE_KEY = "expenseSheets";
 
@@ -583,6 +584,27 @@ importFile.addEventListener("change", () => {
   };
   reader.readAsText(file);
   importFile.value = "";
+});
+
+clearStorageBtn.addEventListener("click", () => {
+  const sheets = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  if (sheets.length === 0) {
+    alert("No saved data to clear.");
+    return;
+  }
+  const ok = confirm(
+    "Clear all saved sheets from local storage? This cannot be undone."
+  );
+  if (!ok) {
+    return;
+  }
+  localStorage.removeItem(STORAGE_KEY);
+  sheetTitle.value = "";
+  savedSheets.value = "";
+  resetRows();
+  renderTotal();
+  updateSavedSheetsList();
+  alert("Local storage cleared.");
 });
 
 saveBtn.addEventListener("click", () => {
