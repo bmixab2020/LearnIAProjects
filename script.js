@@ -589,7 +589,7 @@ importFile.addEventListener("change", () => {
 clearStorageBtn.addEventListener("click", () => {
   const sheets = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
   if (sheets.length === 0) {
-    alert("No saved data to clear.");
+    alert("No saved data to clear in Calculation Sheet.");
     return;
   }
   const ok = confirm(
@@ -604,7 +604,7 @@ clearStorageBtn.addEventListener("click", () => {
   resetRows();
   renderTotal();
   updateSavedSheetsList();
-  alert("Local storage cleared.");
+  alert("Calculation Sheet local storage cleared.");
 });
 
 saveBtn.addEventListener("click", () => {
