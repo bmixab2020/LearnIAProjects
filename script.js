@@ -593,7 +593,7 @@ clearStorageBtn.addEventListener("click", () => {
     return;
   }
   const ok = confirm(
-    "Clear all saved sheets from local storage? This cannot be undone."
+    "Clearing Calculation Sheet. Clear all saved sheets from local storage? This cannot be undone."
   );
   if (!ok) {
     return;
